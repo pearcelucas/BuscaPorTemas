@@ -98,6 +98,107 @@ TEMAS_VERIFICADOS = {
             6226, 7781, 12042,
         ],
     },
+
+    # ---- Ampliação de 27/08 — Saúde (planos), Aéreo e Usucapião (pedido
+    # prioritário) + cobertura mais ampla das demais áreas do escritório.
+    # Códigos levantados a partir do mesmo CSV oficial (assuntos.csv) e
+    # filtrados pela regra já validada: só folha ativa (cod_filhos_ativos
+    # vazio) é usada de fato em petição real — nó-pai/agrupador sempre
+    # devolve 0. Cada tema aqui foi conferido dessa forma antes de entrar;
+    # qualquer um que ainda assim aparecer com 0 processos em uso real deve
+    # ser reportado para nova checagem via /api/debug_codigos.
+    "plano_saude": {
+        "nome": "Plano de Saúde",
+        "assuntos": [13605, 13853, 12487, 12488, 12489, 12490],
+    },
+    "transporte_aereo": {
+        "nome": "Transporte Aéreo (Atraso, Cancelamento, Overbooking, Extravio de Bagagem, Acidente)",
+        "assuntos": [4829, 4830, 4831, 4832, 7748],
+    },
+    "usucapiao": {
+        "nome": "Usucapião",
+        "assuntos": [10457, 10458, 10459, 10460, 10500, 11980, 11990],
+    },
+    "divorcio_uniao_estavel": {
+        "nome": "Divórcio / Dissolução de União Estável",
+        "assuntos": [5813, 14923, 7677, 7672, 14924, 11988],
+    },
+    "alimentos": {
+        "nome": "Ação de Alimentos",
+        "assuntos": [6239, 5787, 5788, 6238, 10859],
+    },
+    "guarda_visitas": {
+        "nome": "Guarda e Regulamentação de Visitas",
+        "assuntos": [5802, 5805, 5801, 11977],
+    },
+    "inventario_sucessoes": {
+        "nome": "Inventário e Sucessões",
+        "assuntos": [7687, 5833, 7676, 5825, 5829, 11991, 15087],
+    },
+    "empresarial_societario": {
+        "nome": "Direito Societário (Constituição, Dissolução, Apuração de Haveres)",
+        "assuntos": [4934, 4935, 4933, 4940, 4939, 4942, 4943],
+    },
+    "recuperacao_judicial_falencia": {
+        "nome": "Recuperação Judicial e Falência",
+        "assuntos": [4994, 4998, 5000, 5001, 9556, 9558, 9559],
+    },
+    "tributario_geral": {
+        "nome": "Tributário (ISS, IPTU, ITBI, ITCD)",
+        "assuntos": [5951, 5952, 5954, 5955],
+    },
+    "posse_propriedade": {
+        "nome": "Posse e Propriedade Imobiliária (Reintegração, Reivindicação, Condomínio, Incorporação)",
+        "assuntos": [10445, 10446, 10447, 10452, 10450, 10462, 10470, 11000, 11001],
+    },
+    "contratos_civis_consumo": {
+        "nome": "Contratos Civis e de Consumo (Compra e Venda, Prestação de Serviços)",
+        "assuntos": [9587, 9596],
+    },
+    "rescisao_trabalhista": {
+        "nome": "Rescisão Contratual Trabalhista (Indireta, Justa Causa, Multas CLT)",
+        "assuntos": [13968, 13962, 13999, 14000, 13995, 13996, 13997],
+    },
+    "horas_extras_jornada": {
+        "nome": "Horas Extras e Jornada de Trabalho",
+        "assuntos": [13787, 13796, 13797, 13791, 13792],
+    },
+    "fgts_trabalhista": {
+        "nome": "FGTS (Depósito, Diferenças, Correção, Levantamento)",
+        "assuntos": [13748, 13749, 13750],
+    },
+    "assedio_trabalho": {
+        "nome": "Assédio Moral e Sexual no Trabalho",
+        "assuntos": [14018, 14019],
+    },
+    "equiparacao_salarial": {
+        "nome": "Equiparação Salarial / Isonomia",
+        "assuntos": [13420, 13693, 14044],
+    },
+    "desvio_acumulo_funcao": {
+        "nome": "Desvio e Acúmulo de Função",
+        "assuntos": [13732, 13733, 13922],
+    },
+    "dano_moral_trabalhista": {
+        "nome": "Indenização por Dano Moral (Trabalhista)",
+        "assuntos": [14011, 14033],
+    },
+}
+
+# Lista de códigos "duvidosos" (nós que têm filhos ativos, ou seja, não são
+# folha pela regra da TPU, mas que na prática ÀS VEZES aparecem usados
+# diretamente em petições — como aconteceu com "Plano de Saúde" 13605/13853,
+# que tecnicamente pendem de nós de Tutela Específica/Verbas mas são usados
+# como assunto principal). Mantidos aqui só para checagem via
+# /api/debug_codigos — NÃO fazem parte de nenhum tema ativo acima até serem
+# confirmados com contagem > 0 em produção.
+CODIGOS_EM_VERIFICACAO = {
+    "divorcio_generico (nó Dissolução, pai de Partilha)": 7664,
+    "recuperacao_judicial_generico (nó pai, pai de Autofalência etc.)": 4993,
+    "execucao_fiscal (Dívida Ativa, nó pai)": 6017,
+    "multa_40_fgts_generico (nó pai, pai de Expurgos Inflacionários)": 13998,
+    "adicional_insalubridade_generico (nó pai)": 13875,
+    "adicional_periculosidade_generico (nó pai)": 13877,
 }
 
 app = FastAPI(title="Prognose Jurídica — backend DataJud")
@@ -257,6 +358,38 @@ def buscar_processos(
             f"Busque \"consulta processual {tribunal}\" no site oficial do tribunal — URL ainda não confirmada.",
         ),
         "processos": processos,
+    }
+
+
+@app.get("/api/debug_codigos")
+def debug_codigos(
+    tribunal: str = Query(..., description="Alias do tribunal, ex.: TJSP"),
+    codigos: str = Query(..., description="Códigos de assunto separados por vírgula, ex.: 13605,13853"),
+):
+    """Endpoint de apoio para conferir, num único request, quantos processos
+    reais existem para cada código de assunto candidato — a mesma checagem
+    manual que revelou o bug do dano_moral (nó-pai sempre 0), agora sem
+    precisar rodar nada localmente. Não é usado pelo frontend."""
+    tribunal = tribunal.upper()
+    if tribunal not in TRIBUNAL_ALIASES:
+        raise HTTPException(status_code=404, detail=f"Tribunal '{tribunal}' não configurado.")
+    endpoint = f"api_publica_{TRIBUNAL_ALIASES[tribunal]}"
+    try:
+        codigos_lista = [int(c.strip()) for c in codigos.split(",") if c.strip()]
+    except ValueError:
+        raise HTTPException(status_code=422, detail="Parâmetro 'codigos' deve ser uma lista de inteiros separados por vírgula.")
+
+    body = {
+        "size": 0,
+        "query": {"terms": {"assuntos.codigo": codigos_lista}},
+        "aggs": {"por_codigo": {"terms": {"field": "assuntos.codigo", "size": 1000}}},
+    }
+    data = _post_datajud(endpoint, body)
+    buckets = data.get("aggregations", {}).get("por_codigo", {}).get("buckets", [])
+    contagens = {b["key"]: b["doc_count"] for b in buckets}
+    return {
+        "tribunal": tribunal,
+        "contagens": {c: contagens.get(c, 0) for c in codigos_lista},
     }
 
 
