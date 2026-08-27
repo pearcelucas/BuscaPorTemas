@@ -192,7 +192,12 @@ def buscar_processos(
         "size": tamanho,
         "from": (pagina - 1) * tamanho,
         "query": {"bool": {"must": [
-            {"match": {"orgaoJulgador.nome": vara}},
+            # term (não match) no subcampo .keyword: precisa ser IGUAL ao nome
+            # exato da vara devolvido por /api/tribunais/{alias}/varas. Um
+            # "match" de texto livre aqui casava com qualquer vara que
+            # compartilhasse palavras comuns ("vara", "juizado", "cível"...),
+            # trazendo processos de comarcas erradas.
+            {"term": {"orgaoJulgador.nome.keyword": vara}},
             {"terms": {"assuntos.codigo": assuntos}},
         ]}},
         "sort": [{"@timestamp": {"order": "desc"}}],
