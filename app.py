@@ -111,7 +111,7 @@ def listar_varas(alias: str, response: Response, tamanho: int = 200):
     if alias not in TRIBUNAL_ALIASES:
         raise HTTPException(status_code=404, detail=f"Tribunal '{alias}' não configurado.")
     endpoint = f"api_publica_{TRIBUNAL_ALIASES[alias]}"
-    body = {"size": 0, "aggs": {"varas": {"terms": {"field": "orgaoJulgador.nome", "size": tamanho}}}}
+    body = {"size": 0, "aggs": {"varas": {"terms": {"field": "orgaoJulgador.nome.keyword", "size": tamanho}}}}
     data = _post_datajud(endpoint, body)
     buckets = data.get("aggregations", {}).get("varas", {}).get("buckets", [])
     response.headers["Cache-Control"] = "public, s-maxage=86400, stale-while-revalidate=3600"
