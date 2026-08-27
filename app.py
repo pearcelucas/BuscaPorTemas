@@ -68,10 +68,20 @@ CONSULTA_PUBLICA = {
 # Só temas com código de assunto confirmado no CSV oficial do CNJ entram aqui.
 # Ver seção 6 do documento de arquitetura para os pendentes.
 TEMAS_VERIFICADOS = {
-    "dano_moral": {"nome": "Indenização por Dano Moral", "assuntos": [14010]},
     "acidente_trabalho": {"nome": "Acidente de Trabalho", "assuntos": [14012, 14016, 14048, 14194, 14810]},
     "despejo": {"nome": "Despejo por Inadimplemento", "assuntos": [14915]},
     "repeticao_indebito": {"nome": "Repetição do Indébito", "assuntos": [14925]},
+    # "dano_moral": reconfirmado em 27/08 no CSV oficial (assuntos.csv do CNJ).
+    # O código 14010 ("Indenização por Dano Moral") é um nó de AGRUPAMENTO —
+    # tem 15 códigos-filho (14016 a 14030) e nenhuma petição real usa 14010
+    # diretamente, por isso a versão anterior devolvia sempre 0 resultados.
+    # Trocado pela lista dos filhos, que são os códigos-folha de verdade
+    # usados para classificar os processos.
+    "dano_moral": {
+        "nome": "Indenização por Dano Moral",
+        "assuntos": [14016, 14017, 14018, 14019, 14020, 14021, 14022, 14023,
+                      14024, 14025, 14026, 14027, 14028, 14029, 14030],
+    },
 }
 
 app = FastAPI(title="Prognose Jurídica — backend DataJud")
