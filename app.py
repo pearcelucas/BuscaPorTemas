@@ -71,16 +71,32 @@ TEMAS_VERIFICADOS = {
     "acidente_trabalho": {"nome": "Acidente de Trabalho", "assuntos": [14012, 14016, 14048, 14194, 14810]},
     "despejo": {"nome": "Despejo por Inadimplemento", "assuntos": [14915]},
     "repeticao_indebito": {"nome": "Repetição do Indébito", "assuntos": [14925]},
-    # "dano_moral": reconfirmado em 27/08 no CSV oficial (assuntos.csv do CNJ).
-    # O código 14010 ("Indenização por Dano Moral") é um nó de AGRUPAMENTO —
-    # tem 15 códigos-filho (14016 a 14030) e nenhuma petição real usa 14010
-    # diretamente, por isso a versão anterior devolvia sempre 0 resultados.
-    # Trocado pela lista dos filhos, que são os códigos-folha de verdade
-    # usados para classificar os processos.
+    # "dano_moral": reconfirmado em 27/08 no CSV oficial (assuntos.csv do
+    # CNJ, delimitador ";"). "Indenização por Dano Moral" existe como QUATRO
+    # nós de agrupamento paralelos na TPU — um por área do direito (Civil
+    # geral, Consumidor, e mais dois outros ramos) — cada um com seu próprio
+    # conjunto de códigos-filho ativos (cod_filhos_ativos). Nenhuma petição
+    # usa o código do nó-pai diretamente, só os filhos. A primeira correção
+    # só usou o ramo "Civil geral" (14010) e continuou devolvendo 0 num
+    # Juizado Especial Cível — porque causas de juizado são majoritariamente
+    # de consumo, ramo diferente (9992). Por isso a lista abaixo junta os
+    # filhos ativos dos 4 ramos encontrados, para cobrir o tema
+    # independentemente da área do direito do processo:
+    #   14010 (Dano Moral / Civil geral,        pai 14007): 15 filhos
+    #   9992  (Dano Moral / Consumidor,          pai 9991):  19 filhos
+    #   10433 (Dano Moral / outro ramo civil,    pai 10431):  6 filhos
+    #   7779  (Dano Moral / outro ramo,          pai 6220):   3 filhos
     "dano_moral": {
         "nome": "Indenização por Dano Moral",
-        "assuntos": [14016, 14017, 14018, 14019, 14020, 14021, 14022, 14023,
-                      14024, 14025, 14026, 14027, 14028, 14029, 14030],
+        "assuntos": [
+            14016, 14017, 14018, 14019, 14020, 14021, 14022, 14023, 14024,
+            14025, 14026, 14027, 14028, 14029, 14030,
+            9995, 9996, 10870, 10888, 14162, 14163, 14164, 14165, 14167,
+            14168, 14169, 14170, 14171, 14172, 14173, 14174, 14175, 14909,
+            14911,
+            10434, 10435, 10436, 10437, 14920, 14922,
+            6226, 7781, 12042,
+        ],
     },
 }
 
