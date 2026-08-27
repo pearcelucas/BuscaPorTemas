@@ -43,8 +43,21 @@ BASE_URL = "https://api-publica.datajud.cnj.jus.br"
 HEADERS = {"Authorization": f"APIKey {DATAJUD_APIKEY}", "Content-Type": "application/json"}
 
 TRIBUNAL_ALIASES = {
-    "TJSP": "tjsp", "TJRJ": "tjrj", "TJMG": "tjmg",
-    "TRT2": "trt2", "TJDFT": "tjdft", "TJRS": "tjrs",
+    # Tribunais de Justiça estaduais — todos os 26 estados + Distrito Federal.
+    # Padrão de alias confirmado em produção para tjsp/tjrj/tjmg/tjdft/tjrs;
+    # os demais seguem a mesma convenção documentada pelo CNJ (api_publica_<uf>).
+    "TJAC": "tjac", "TJAL": "tjal", "TJAP": "tjap", "TJAM": "tjam", "TJBA": "tjba",
+    "TJCE": "tjce", "TJDFT": "tjdft", "TJES": "tjes", "TJGO": "tjgo", "TJMA": "tjma",
+    "TJMT": "tjmt", "TJMS": "tjms", "TJMG": "tjmg", "TJPA": "tjpa", "TJPB": "tjpb",
+    "TJPR": "tjpr", "TJPE": "tjpe", "TJPI": "tjpi", "TJRJ": "tjrj", "TJRN": "tjrn",
+    "TJRS": "tjrs", "TJRO": "tjro", "TJRR": "tjrr", "TJSC": "tjsc", "TJSP": "tjsp",
+    "TJSE": "tjse", "TJTO": "tjto",
+    # Tribunais Regionais do Trabalho — todas as 24 regiões.
+    "TRT1": "trt1", "TRT2": "trt2", "TRT3": "trt3", "TRT4": "trt4", "TRT5": "trt5",
+    "TRT6": "trt6", "TRT7": "trt7", "TRT8": "trt8", "TRT9": "trt9", "TRT10": "trt10",
+    "TRT11": "trt11", "TRT12": "trt12", "TRT13": "trt13", "TRT14": "trt14", "TRT15": "trt15",
+    "TRT16": "trt16", "TRT17": "trt17", "TRT18": "trt18", "TRT19": "trt19", "TRT20": "trt20",
+    "TRT21": "trt21", "TRT22": "trt22", "TRT23": "trt23", "TRT24": "trt24",
 }
 
 CONSULTA_PUBLICA = {
