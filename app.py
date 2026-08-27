@@ -87,6 +87,23 @@ async def erro_inesperado(request, exc):
     )
 
 
+def _nome_campo(valor):
+    """Extrai o campo 'nome' de forma tolerante: em alguns documentos reais do
+    DataJud (inconsistência de dados entre tribunais/instâncias) 'classe',
+    'assuntos[i]', 'orgaoJulgador' ou 'movimentos[i]' vêm como dict {"nome": ...},
+    mas em outros vêm como lista (às vezes até lista aninhada). Sem esse
+    tratamento, .get("nome") direto quebra com AttributeError nesses casos."""
+    if isinstance(valor, dict):
+        return valor.get("nome")
+    if isinstance(valor, list):
+        for item in valor:
+            nome = _nome_campo(item)
+            if nome:
+                return nome
+        return None
+    return None
+
+
 def _post_datajud(endpoint: str, body: dict, tentativas: int = 4) -> dict:
     """POST com backoff exponencial — trata 429/503 sem repassar cru ao cliente."""
     url = f"{BASE_URL}/{endpoint}/_search"
@@ -176,12 +193,12 @@ def buscar_processos(
         movimentos = src.get("movimentos") or []
         processos.append({
             "numeroProcesso": src.get("numeroProcesso"),
-            "classe": (src.get("classe") or {}).get("nome"),
-            "assuntos": [a.get("nome") for a in src.get("assuntos", [])],
-            "orgaoJulgador": (src.get("orgaoJulgador") or {}).get("nome"),
+            "classe": _nome_campo(src.get("classe")),
+            "assuntos": [n for n in (_nome_campo(a) for a in (src.get("assuntos") or [])) if n],
+            "orgaoJulgador": _nome_campo(src.get("orgaoJulgador")),
             "grau": src.get("grau"),
             "dataAjuizamento": src.get("dataAjuizamento"),
-            "ultimoMovimento": movimentos[-1].get("nome") if movimentos else None,
+            "ultimoMovimento": _nome_campo(movimentos[-1]) if movimentos else None,
         })
 
     response.headers["Cache-Control"] = "public, s-maxage=21600, stale-while-revalidate=3600"
