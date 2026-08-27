@@ -71,6 +71,22 @@ app.add_middleware(
 )
 
 
+@app.exception_handler(Exception)
+async def erro_inesperado(request, exc):
+    # Temporário, para diagnóstico: expõe o tipo/mensagem da exceção em vez do
+    # "Internal Server Error" genérico, para conseguirmos ver a causa real sem
+    # precisar acessar os logs da Vercel. Remover/reduzir depois de estabilizado.
+    import traceback
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        status_code=500,
+        content={
+            "detail": f"Erro interno não tratado: {type(exc).__name__}: {exc}",
+            "traceback": traceback.format_exc()[-2000:],
+        },
+    )
+
+
 def _post_datajud(endpoint: str, body: dict, tentativas: int = 4) -> dict:
     """POST com backoff exponencial — trata 429/503 sem repassar cru ao cliente."""
     url = f"{BASE_URL}/{endpoint}/_search"
