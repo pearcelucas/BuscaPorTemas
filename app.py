@@ -101,15 +101,19 @@ TEMAS_VERIFICADOS = {
 
     # ---- Ampliação de 27/08 — Saúde (planos), Aéreo e Usucapião (pedido
     # prioritário) + cobertura mais ampla das demais áreas do escritório.
-    # Códigos levantados a partir do mesmo CSV oficial (assuntos.csv) e
-    # filtrados pela regra já validada: só folha ativa (cod_filhos_ativos
-    # vazio) é usada de fato em petição real — nó-pai/agrupador sempre
-    # devolve 0. Cada tema aqui foi conferido dessa forma antes de entrar;
-    # qualquer um que ainda assim aparecer com 0 processos em uso real deve
-    # ser reportado para nova checagem via /api/debug_codigos.
+    # Códigos levantados no CSV oficial (assuntos.csv) e depois CONFERIDOS UM
+    # A UM com contagem real via /api/debug_codigos em TJSP, TJCE, TRT7 e
+    # TRT2 antes de entrar aqui — não só pela regra de "folha ativa", que
+    # sozinha se mostrou insuficiente: alguns nós-pai (ex.: 7664 Dissolução,
+    # 4993 Recuperação Judicial, 6017 Execução Fiscal, 13998 Multa 40% FGTS,
+    # 13875/13877 Adicionais de Insalubridade/Periculosidade) são usados
+    # diretamente em volume real mesmo tendo filhos ativos, e um "folha"
+    # (13853, Plano de Saúde/verbas trabalhistas) devolveu 0 em ambos TJSP e
+    # TJCE e por isso foi removido. Cobertura pode variar por tribunal —
+    # normal, mesma lógica de qualquer tema aqui.
     "plano_saude": {
         "nome": "Plano de Saúde",
-        "assuntos": [13605, 13853, 12487, 12488, 12489, 12490],
+        "assuntos": [13605, 12487, 12488, 12489, 12490],
     },
     "transporte_aereo": {
         "nome": "Transporte Aéreo (Atraso, Cancelamento, Overbooking, Extravio de Bagagem, Acidente)",
@@ -121,7 +125,7 @@ TEMAS_VERIFICADOS = {
     },
     "divorcio_uniao_estavel": {
         "nome": "Divórcio / Dissolução de União Estável",
-        "assuntos": [5813, 14923, 7677, 7672, 14924, 11988],
+        "assuntos": [7664, 5813, 14923, 7677, 7672, 14924, 11988],
     },
     "alimentos": {
         "nome": "Ação de Alimentos",
@@ -141,11 +145,11 @@ TEMAS_VERIFICADOS = {
     },
     "recuperacao_judicial_falencia": {
         "nome": "Recuperação Judicial e Falência",
-        "assuntos": [4994, 4998, 5000, 5001, 9556, 9558, 9559],
+        "assuntos": [4993, 4994, 4998, 5000, 5001, 9556, 9558, 9559],
     },
     "tributario_geral": {
-        "nome": "Tributário (ISS, IPTU, ITBI, ITCD)",
-        "assuntos": [5951, 5952, 5954, 5955],
+        "nome": "Tributário (Execução Fiscal, ISS, IPTU, ITBI, ITCD)",
+        "assuntos": [6017, 5951, 5952, 5954, 5955],
     },
     "posse_propriedade": {
         "nome": "Posse e Propriedade Imobiliária (Reintegração, Reivindicação, Condomínio, Incorporação)",
@@ -164,8 +168,8 @@ TEMAS_VERIFICADOS = {
         "assuntos": [13787, 13796, 13797, 13791, 13792],
     },
     "fgts_trabalhista": {
-        "nome": "FGTS (Depósito, Diferenças, Correção, Levantamento)",
-        "assuntos": [13748, 13749, 13750],
+        "nome": "FGTS (Multa de 40%, Depósito, Diferenças, Correção, Levantamento)",
+        "assuntos": [13998, 13748, 13749, 13750],
     },
     "assedio_trabalho": {
         "nome": "Assédio Moral e Sexual no Trabalho",
@@ -183,22 +187,10 @@ TEMAS_VERIFICADOS = {
         "nome": "Indenização por Dano Moral (Trabalhista)",
         "assuntos": [14011, 14033],
     },
-}
-
-# Lista de códigos "duvidosos" (nós que têm filhos ativos, ou seja, não são
-# folha pela regra da TPU, mas que na prática ÀS VEZES aparecem usados
-# diretamente em petições — como aconteceu com "Plano de Saúde" 13605/13853,
-# que tecnicamente pendem de nós de Tutela Específica/Verbas mas são usados
-# como assunto principal). Mantidos aqui só para checagem via
-# /api/debug_codigos — NÃO fazem parte de nenhum tema ativo acima até serem
-# confirmados com contagem > 0 em produção.
-CODIGOS_EM_VERIFICACAO = {
-    "divorcio_generico (nó Dissolução, pai de Partilha)": 7664,
-    "recuperacao_judicial_generico (nó pai, pai de Autofalência etc.)": 4993,
-    "execucao_fiscal (Dívida Ativa, nó pai)": 6017,
-    "multa_40_fgts_generico (nó pai, pai de Expurgos Inflacionários)": 13998,
-    "adicional_insalubridade_generico (nó pai)": 13875,
-    "adicional_periculosidade_generico (nó pai)": 13877,
+    "adicional_insalubridade_periculosidade": {
+        "nome": "Adicional de Insalubridade e Periculosidade",
+        "assuntos": [13875, 13877],
+    },
 }
 
 app = FastAPI(title="Prognose Jurídica — backend DataJud")
